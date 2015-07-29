@@ -37,7 +37,7 @@ public class FileNameDecoder {
 				flags = getChar(name,encPos++); 
 				flagBits = 8; 
 			} 
-			switch(flags >> 6){ 
+			switch(flags >>> 6){ 
 			case 0: 
 				buf.append((char)(getChar(name,encPos++))); 
 				++decPos; 

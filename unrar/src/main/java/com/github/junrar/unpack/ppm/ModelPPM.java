@@ -184,6 +184,15 @@ public class ModelPPM
 		Arrays.fill(charMask, 0);
 	}
 
+        // reset PPM variables after data error allowing safe resuming
+        // of further data processing
+        public void cleanUp()
+        {
+          subAlloc.stopSubAllocator();
+          subAlloc.startSubAllocator(1);
+          startModelRare(2);
+        }
+        
 	public boolean decodeInit(Unpack unpackRead, int escChar/* ref */)
 			throws IOException, RarException
 	{

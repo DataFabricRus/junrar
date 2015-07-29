@@ -46,7 +46,7 @@ public class BitInput {
     public void addbits(int Bits)
     {
       Bits+=inBit;
-      inAddr+=Bits>>3;
+      inAddr+=Bits>>>3;
       inBit=Bits&7;
     }
     

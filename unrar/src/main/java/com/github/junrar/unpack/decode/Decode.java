@@ -17,6 +17,8 @@
  */
 package com.github.junrar.unpack.decode;
 
+import java.util.Arrays;
+
 /**
  * Used to store information for lz decoding
  * 
@@ -77,5 +79,11 @@ public class Decode
 	{
 		this.maxNum = maxNum;
 	}
+        
+        public void setZero()
+        {
+            Arrays.fill(decodeNum, 0, decodeNum.length-1, 0);
+        }
+        
 
 }

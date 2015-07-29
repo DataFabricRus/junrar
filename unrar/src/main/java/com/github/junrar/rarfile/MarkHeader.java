@@ -67,7 +67,7 @@ public class MarkHeader extends BaseBlock {
                 oldFormat=true;
                 valid=true;
             }
-            else if (d[1]==0x61 && d[2]==0x72 && d[3]==0x21 && d[4]==0x1a &&
+            else if (d[1]==0x61 && d[2]==0x72 && d[3]==0x21 && d[4]==((byte)0x1a) &&
                     d[5]==0x07 && d[6]==0x00) {
                 oldFormat=false;
                 valid=true;

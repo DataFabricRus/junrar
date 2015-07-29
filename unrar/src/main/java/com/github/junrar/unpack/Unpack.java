@@ -31,6 +31,8 @@ import com.github.junrar.unpack.ppm.SubAllocator;
 import com.github.junrar.unpack.vm.BitInput;
 import com.github.junrar.unpack.vm.RarVM;
 import com.github.junrar.unpack.vm.VMPreparedProgram;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -195,13 +197,14 @@ public final class Unpack extends Unpack20 {
 	    }
 	    if (unpBlockType == BlockTypes.BLOCK_PPM) {
 		int Ch = ppm.decodeChar();
-		if (Ch == -1) {
-		    ppmError = true;
+		if (Ch == -1) { // Corrupt PPM data found.
+                    ppm.cleanUp();
+		    unpBlockType = BlockTypes.BLOCK_LZ;
 		    break;
 		}
 		if (Ch == ppmEscChar) {
-		    int NextCh = ppm.decodeChar();
-		    if (NextCh == 0) {
+		    int NextCh = SafePPMDecodeChar();
+		    if (NextCh == 0) {  // End of PPM encoding.
 			if (!readTables()) {
 			    break;
 			}
@@ -240,7 +243,7 @@ public final class Unpack extends Unpack20 {
 			continue;
 		    }
 		    if (NextCh == 5) {
-			int Length = ppm.decodeChar();
+			int Length = SafePPMDecodeChar();
 			if (Length == -1) {
 			    break;
 			}
@@ -591,6 +594,30 @@ public final class Unpack extends Unpack20 {
 	    }
     }
 
+    
+    // We use it instead of direct PPM.DecodeChar call to be sure that
+    // we reset PPM structures in case of corrupt data. It is important,
+    // because these structures can be invalid after PPM.DecodeChar returned -1.
+    protected int SafePPMDecodeChar()
+    {
+      int Ch;
+        try
+        {
+            Ch = ppm.decodeChar();
+        } catch (Exception ex)
+        {
+            Ch = -1;
+            Logger.getLogger(Unpack.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      
+      if (Ch==-1)              // Corrupt PPM data found.
+      {
+        ppm.cleanUp();         // Reset possibly corrupt PPM data structures.
+        unpBlockType= BlockTypes.BLOCK_LZ; // Set faster and more fail proof LZ mode.
+      }
+      return(Ch);
+    }    
+    
     protected void unpInitData(boolean solid) {
 	if (!solid) {
 	    tablesRead = false;
@@ -602,10 +629,16 @@ public final class Unpack extends Unpack20 {
 
 	    Arrays.fill(unpOldTable, (byte) 0);// memset(UnpOldTable,0,sizeof(UnpOldTable));
 
+            LD.setZero();
+            DD.setZero();
+            LDD.setZero();
+            RD.setZero();
+            BD.setZero();
+                    
 	    unpPtr = 0;
 	    wrPtr = 0;
 	    ppmEscChar = 2;
-
+            unpBlockType= BlockTypes.BLOCK_LZ;
 	    initFilters();
 	}
 	InitBitInput();
@@ -633,7 +666,7 @@ public final class Unpack extends Unpack20 {
 	    addbits(1);
 	} else {
 	    NewFile = true;
-	    NewTable = (BitField & 0x4000) != 0 ? true : false;
+	    NewTable = (BitField & 0x4000) != 0;
 	    addbits(2);
 	}
 	tablesRead = !NewTable;
@@ -745,11 +778,11 @@ public final class Unpack extends Unpack20 {
     }
 
     private boolean readVMCode() throws IOException, RarException {
-	int FirstByte = getbits() >> 8;
+	int FirstByte = getbits() >>> 8;
 	addbits(8);
 	int Length = (FirstByte & 7) + 1;
 	if (Length == 7) {
-	    Length = (getbits() >> 8) + 7;
+	    Length = (getbits() >>> 8) + 7;
 	    addbits(8);
 	} else if (Length == 8) {
 	    Length = getbits();
@@ -760,30 +793,30 @@ public final class Unpack extends Unpack20 {
 	    if (inAddr >= readTop - 1 && !unpReadBuf() && I < Length - 1) {
 		return (false);
 	    }
-	    vmCode.add(Byte.valueOf((byte) (getbits() >> 8)));
+	    vmCode.add(Byte.valueOf((byte) (getbits() >>> 8)));
 	    addbits(8);
 	}
 	return (addVMCode(FirstByte, vmCode, Length));
     }
 
     private boolean readVMCodePPM() throws IOException, RarException {
-	int FirstByte = ppm.decodeChar();
+	int FirstByte = SafePPMDecodeChar();
 	if ((int) FirstByte == -1) {
 	    return (false);
 	}
 	int Length = (FirstByte & 7) + 1;
 	if (Length == 7) {
-	    int B1 = ppm.decodeChar();
+	    int B1 = SafePPMDecodeChar();
 	    if (B1 == -1) {
 		return (false);
 	    }
 	    Length = B1 + 7;
 	} else if (Length == 8) {
-	    int B1 = ppm.decodeChar();
+	    int B1 = SafePPMDecodeChar();
 	    if (B1 == -1) {
 		return (false);
 	    }
-	    int B2 = ppm.decodeChar();
+	    int B2 = SafePPMDecodeChar();
 	    if (B2 == -1) {
 		return (false);
 	    }
@@ -791,7 +824,7 @@ public final class Unpack extends Unpack20 {
 	}
 	List<Byte> vmCode = new ArrayList<Byte>();
 	for (int I = 0; I < Length; I++) {
-	    int Ch = ppm.decodeChar();
+	    int Ch = SafePPMDecodeChar();
 	    if (Ch == -1) {
 		return (false);
 	    }
@@ -850,7 +883,23 @@ public final class Unpack extends Unpack20 {
 	    Filter.setExecCount(Filter.getExecCount() + 1);// ->ExecCount++;
 	}
 
-	prgStack.add(StackFilter);
+	//prgStack.add(StackFilter);
+        int EmptyCount=0;
+          for (int I=0;I<prgStack.size();I++)
+          {
+            prgStack.set(I-EmptyCount, prgStack.get(I));
+            if (prgStack.get(I) == null)
+                EmptyCount++;
+            if (EmptyCount > 0)
+              prgStack.set(I, null);
+          }
+          if (EmptyCount==0)
+          {
+            prgStack.add(null);
+            EmptyCount=1;
+          }
+          int StackPos=(int)(prgStack.size()-EmptyCount);
+          prgStack.set(StackPos, StackFilter);        
 	StackFilter.setExecCount(Filter.getExecCount());// ->ExecCount;
 
 	int BlockStart = RarVM.ReadData(Inp);
@@ -903,7 +952,7 @@ public final class Unpack extends Unpack20 {
 		if (Inp.Overflow(3)) {
 		    return (false);
 		}
-		VMCode[I] = (byte) (Inp.fgetbits() >> 8);
+		VMCode[I] = (byte) (Inp.fgetbits() >>> 8);
 		Inp.faddbits(8);
 	    }
 	    // VM.Prepare(&VMCode[0],VMCodeSize,&Filter->Prg);
@@ -940,8 +989,8 @@ public final class Unpack extends Unpack20 {
 	rarVM.setLowEndianValue(globalData, 0x1c, StackFilter.getBlockLength());
 	// VM.SetLowEndianValue((uint *)&GlobalData[0x20],0);
 	rarVM.setLowEndianValue(globalData, 0x20, 0);
-	rarVM.setLowEndianValue(globalData, 0x24, 0);
-	rarVM.setLowEndianValue(globalData, 0x28, 0);
+//	rarVM.setLowEndianValue(globalData, 0x24, 0);
+//	rarVM.setLowEndianValue(globalData, 0x28, 0);
 
 	// VM.SetLowEndianValue((uint
 	// *)&GlobalData[0x2c],StackFilter->ExecCount);
