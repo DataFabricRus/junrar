@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.beothorn</groupId>
+	<groupId>com.github.RDamman</groupId>
 	<artifactId>junrar</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7-SNAPSHOT</version>
+	<version>0.8.0</version>
 	<name>Java UnRar</name>
-	<description>rar decompression library in plain java</description>
+	<description>rar decompression library in plain java. Also for standalone extraction: java - jar junrar.jar &lt;thearchive&gt; &lt;the destination directory&gt;</description>
 	<url>https://github.com/edmund-wagner/junrar</url>
 
 	<properties>
@@ -17,21 +17,25 @@
 	<licenses>
 		<license>
 			<name>UnRar License</name>
-			<url>https://raw.github.com/edmund-wagner/junrar/master/license.txt</url>
+			<url>https://raw.github.com/rdamman/junrar/master/license.txt</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git@github.com:edmund-wagner/junrar.git</connection>
-		<developerConnection>scm:git:git@github.com:edmund-wagner/junrar.git</developerConnection>
-		<url>git@github.com:edmund-wagner/junrar.git</url>
+		<connection>scm:git:git@github.com:rdamman/junrar.git</connection>
+		<developerConnection>scm:git:git@github.com:rdamman/junrar.git</developerConnection>
+		<url>git@github.com:rdamman/junrar.git</url>
 	</scm>
 
 	<developers>
 		<developer>
 			<id>edmund_wagner</id>
 			<name>Edmund Wagner</name>
+		</developer>
+		<developer>
+			<id>rdamman</id>
+			<name>Roy Damman</name>
 		</developer>
 	</developers>
 
@@ -65,6 +69,20 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.2.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.2</version>
+
+                              <configuration>
+                                   <archive>
+                                       <manifest>
+                                           <mainClass>com.github.junrar.ExtractArchive</mainClass>
+                                           <addClasspath>true</addClasspath>
+                                       </manifest>
+                                   </archive>
+                              </configuration>
 			</plugin>
 		</plugins>
 	</build>

@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.github.junrar.io.Raw;
+import java.io.File;
 
 
 /**
@@ -62,7 +63,6 @@ public class FileHeader extends BlockHeader {
     private final byte[] fileNameBytes;
 
     private String fileName;
-    private String fileNameW;
 
     private byte[] subData;
 
@@ -145,22 +145,16 @@ public class FileHeader extends BlockHeader {
 	if (isFileHeader()) {
 	    if (isUnicode()) {
 		int length = 0;
-		fileName = "";
-		fileNameW = "";
 		while (length < fileNameBytes.length
 			&& fileNameBytes[length] != 0) {
 		    length++;
 		}
-		byte[] name = new byte[length];
-		System.arraycopy(fileNameBytes, 0, name, 0, name.length);
-		fileName = new String(name);
 		if (length != nameSize) {
 		    length++;
-		    fileNameW = FileNameDecoder.decode(fileNameBytes, length);
+		setFileName(FileNameDecoder.decode(fileNameBytes, length));
 		}
 	    } else {
-		fileName = new String(fileNameBytes);
-		fileNameW = "";
+		setFileName(new String(fileNameBytes));
 	    }
 	}
 
@@ -230,6 +224,7 @@ public class FileHeader extends BlockHeader {
 	cal.set(Calendar.HOUR_OF_DAY, (time >>> 11) & 0x1f);
 	cal.set(Calendar.MINUTE, (time >>> 5) & 0x3f);
 	cal.set(Calendar.SECOND, (time & 0x1f) * 2);
+        cal.set(Calendar.MILLISECOND, 0);
 	return cal.getTime();
     }
 
@@ -278,15 +273,7 @@ public class FileHeader extends BlockHeader {
     }
 
     public void setFileName(String fileName) {
-	this.fileName = fileName;
-    }
-
-    public String getFileNameW() {
-	return fileNameW;
-    }
-
-    public void setFileNameW(String fileNameW) {
-	this.fileNameW = fileNameW;
+	this.fileName = fileName.replace("\\", File.separator); // For illegal file separator characters ;
     }
 
     public int getHighPackSize() {

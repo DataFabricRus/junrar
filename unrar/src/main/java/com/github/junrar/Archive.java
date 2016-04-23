@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.exception.RarException.RarExceptionType;
 import com.github.junrar.impl.FileVolumeManager;
+import com.github.junrar.impl.InputStreamVolumeManager;
 import com.github.junrar.io.IReadOnlyAccess;
 import com.github.junrar.rarfile.AVHeader;
 import com.github.junrar.rarfile.BaseBlock;
@@ -51,6 +52,7 @@ import com.github.junrar.rarfile.UnixOwnersHeader;
 import com.github.junrar.rarfile.UnrarHeadertype;
 import com.github.junrar.unpack.ComprDataIO;
 import com.github.junrar.unpack.Unpack;
+import java.io.FileOutputStream;
 
 
 /**
@@ -118,7 +120,15 @@ public class Archive implements Closeable {
 		this(new FileVolumeManager(firstVolume), unrarCallback);
 	}
 
-	// public File getFile() {
+	public Archive(InputStream firstVolume) throws RarException, IOException {
+		this(new InputStreamVolumeManager(firstVolume), null);
+	}
+
+	public Archive(InputStream firstVolume, UnrarCallback unrarCallback)
+			throws RarException, IOException {
+		this(new InputStreamVolumeManager(firstVolume), unrarCallback);
+	}
+        // public File getFile() {
 	// return file;
 	// }
 	//
@@ -168,7 +178,15 @@ public class Archive implements Closeable {
 	}
 
 	/**
-	 * @return returns all file headers of the archive
+         * Gets all of the headers in the archive.
+         *
+         * @return returns the headers.
+	 */
+	public List<BaseBlock> getHeaders() {
+		return new ArrayList<BaseBlock>(headers);
+	}
+
+	/**	 * @return returns all file headers of the archive
 	 */
 	public List<FileHeader> getFileHeaders() {
 		List<FileHeader> list = new ArrayList<FileHeader>();
@@ -424,12 +442,59 @@ public class Archive implements Closeable {
 			// logger.info("\n--------end header--------");
 		}
 	}
+	
+	/**
+	 * Extracts specified header to specified directory. Path in the
+	 * header and specified directory will be constructed if it does
+	 * not already exist.
+	 *  
+	 * @param hd specified header
+	 * @param destPath directory where the header needs to be extracted
+	 * @throws RarException
+	 * 
+	 */
+         public void extractFile(FileHeader hd, String destPath) throws RarException
+         {
+            File oFile, oFinalDir;
+            OutputStream oFileStream;
+            String sFilePath;
+
+            if (!headers.contains(hd))
+            {
+               throw new RarException(RarExceptionType.headerNotInArchive);
+            }
+            try
+            {
+
+               sFilePath = destPath + File.separator + hd.getFileNameString();
+               oFile = new File(sFilePath);
+               oFinalDir = new File(oFile.getParent());
+
+               if (!oFinalDir.exists())
+               {
+                  oFinalDir.mkdirs();
+               }
+
+               oFileStream = new FileOutputStream(oFile);
+               doExtractFile(hd, oFileStream);
+               oFileStream.close();
+            } catch (Exception e)
+            {
+               if (e instanceof RarException)
+               {
+                  throw (RarException) e;
+               } else
+               {
+                  throw new RarException(e);
+               }
+            }
+         }
 
 	/**
 	 * Extract the file specified by the given header and write it to the
 	 * supplied output stream
 	 * 
-	 * @param header
+	 * @param hd
 	 *            the header to be extracted
 	 * @param os
 	 *            the outputstream
@@ -455,7 +520,7 @@ public class Archive implements Closeable {
 	 * stream it. Please note that this method will create a new Thread and an a
 	 * pair of Pipe streams.
 	 * 
-	 * @param header
+	 * @param hd
 	 *            the header to be extracted
 	 * @throws RarException
 	 * @throws IOException

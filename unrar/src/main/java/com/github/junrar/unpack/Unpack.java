@@ -84,7 +84,9 @@ public final class Unpack extends Unpack20 {
     public static int[] DBitLengthCounts = { 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 	    2, 2, 2, 2, 2, 14, 0, 12 };
 
-    public Unpack(ComprDataIO DataIO) {
+    public Unpack(ComprDataIO DataIO) 
+    {
+        super();
 	unpIO = DataIO;
 	window = null;
 	externalWindow = false;

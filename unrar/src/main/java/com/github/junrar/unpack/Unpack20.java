@@ -2,6 +2,8 @@
  * Copyright (c) 2007 innoSysTec (R) GmbH, Germany. All rights reserved.
  * Original author: Edmund Wagner
  * Creation date: 21.06.2007
+ * Modified by: Roy Damman
+ * Modification date: 22.04.2016
  *
  * Source: $HeadURL$
  * Last changed: $LastChangedDate$
@@ -42,7 +44,7 @@ import com.github.junrar.unpack.decode.RepDecode;
 public abstract class Unpack20 extends Unpack15
 {
 
-	protected MultDecode[] MD = new MultDecode[4];
+	protected MultDecode[] MD;
 
 	protected byte[] UnpOldTable20 = new byte[Compress.MC20 * 4];
 
@@ -81,6 +83,14 @@ public abstract class Unpack20 extends Unpack15
 
 	public static final int[] SDBits = { 2, 2, 3, 4, 5, 6, 6, 6 };
 
+        public Unpack20()
+        {
+           super();
+            MD = new MultDecode[4];
+            for (int iT1 = 0; iT1 < MD.length; iT1 ++)
+               MD[iT1] = new MultDecode();
+        }
+        
 	protected void unpack20(boolean solid) throws IOException, RarException
 	{
 
@@ -262,65 +272,6 @@ public abstract class Unpack20 extends Unpack15
 	{
 		int bits;
 		long bitField = getbits() & 0xfffe;
-//        if (bitField < dec.getDecodeLen()[8]) {
-//			if (bitField < dec.getDecodeLen()[4]) {
-//				if (bitField < dec.getDecodeLen()[2]) {
-//					if (bitField < dec.getDecodeLen()[1]) {
-//						bits = 1;
-//					} else {
-//						bits = 2;
-//					}
-//				} else {
-//					if (bitField < dec.getDecodeLen()[3]) {
-//						bits = 3;
-//					} else {
-//						bits = 4;
-//					}
-//				}
-//			} else {
-//				if (bitField < dec.getDecodeLen()[6]) {
-//					if (bitField < dec.getDecodeLen()[5])
-//						bits = 5;
-//					else
-//						bits = 6;
-//				} else {
-//					if (bitField < dec.getDecodeLen()[7]) {
-//						bits = 7;
-//					} else {
-//						bits = 8;
-//					}
-//				}
-//			}
-//		} else {
-//			if (bitField < dec.getDecodeLen()[12]) {
-//				if (bitField < dec.getDecodeLen()[10])
-//					if (bitField < dec.getDecodeLen()[9])
-//						bits = 9;
-//					else
-//						bits = 10;
-//				else if (bitField < dec.getDecodeLen()[11])
-//					bits = 11;
-//				else
-//					bits = 12;
-//			} else {
-//				if (bitField < dec.getDecodeLen()[14]) {
-//					if (bitField < dec.getDecodeLen()[13]) {
-//						bits = 13;
-//					} else {
-//						bits = 14;
-//					}
-//				} else {
-//					bits = 15;
-//				}
-//			}
-//		}
-//		addbits(bits);
-//		int N = dec.getDecodePos()[bits]
-//				+ (((int) bitField - dec.getDecodeLen()[bits - 1]) >>> (16 - bits));
-//		if (N >= dec.getMaxNum()) {
-//			N = 0;
-//		}
-//		return (dec.getDecodeNum()[N]);
         int[] decodeLen = dec.getDecodeLen();
         if (bitField < decodeLen[8]) {
 			if (bitField < decodeLen[4]) {
@@ -471,9 +422,8 @@ public abstract class Unpack20 extends Unpack15
 		if (!Solid) {
 			UnpChannelDelta = UnpCurChannel = 0;
 			UnpChannels = 1;
-			// memset(AudV,0,sizeof(AudV));
-			Arrays.fill(AudV, new AudioVariables());
-			// memset(UnpOldTable20,0,sizeof(UnpOldTable20));
+                        for (int iT1 = 0; iT1 < AudV.length; iT1 ++)
+                           AudV[iT1] = new AudioVariables();
 			Arrays.fill(UnpOldTable20, (byte) 0);
 		}
 	}
