@@ -18,6 +18,7 @@ package com.github.junrar.vfs2.provider.rar;
 
 import java.io.IOException;
 
+import com.github.junrar.IArchive;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.RandomAccessContent;
@@ -33,14 +34,14 @@ import com.github.junrar.io.InputStreamReadOnlyAccessFile;
  * @author <a href="http://www.rogiel.com">Rogiel</a>
  */
 public class VFSVolume implements Volume {
-	private final Archive archive;
+	private final IArchive archive;
 	private final FileObject file;
 
 	/**
 	 * @param archive
-	 * @param firstVolume
+	 * @param file
 	 */
-	public VFSVolume(Archive archive, FileObject file) {
+	public VFSVolume(IArchive archive, FileObject file) {
 		this.archive = archive;
 		this.file = file;
 	}
@@ -69,7 +70,7 @@ public class VFSVolume implements Volume {
 	}
 
 	@Override
-	public Archive getArchive() {
+	public IArchive getArchive() {
 		return archive;
 	}
 

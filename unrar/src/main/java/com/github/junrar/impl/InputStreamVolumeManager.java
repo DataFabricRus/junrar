@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.github.junrar.Archive;
+import com.github.junrar.IArchive;
 import com.github.junrar.Volume;
 import com.github.junrar.VolumeManager;
 import com.github.junrar.util.VolumeHelper;
@@ -22,7 +23,7 @@ public class InputStreamVolumeManager implements VolumeManager {
 	}
 
 	@Override
-	public Volume nextArchive(Archive archive, Volume last)
+	public Volume nextArchive(IArchive archive, Volume last)
 			throws IOException {
 		if (last == null)
 			return new InputStreamVolume(archive, firstVolume);

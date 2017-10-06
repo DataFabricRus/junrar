@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.github.junrar.Archive;
+import com.github.junrar.IArchive;
 import com.github.junrar.Volume;
 import com.github.junrar.VolumeManager;
 import com.github.junrar.util.VolumeHelper;
@@ -37,7 +38,7 @@ public class FileVolumeManager implements VolumeManager {
 	}
 
 	@Override
-	public Volume nextArchive(Archive archive, Volume last)
+	public Volume nextArchive(IArchive archive, Volume last)
 			throws IOException {
 		if (last == null)
 			return new FileVolume(archive, firstVolume);

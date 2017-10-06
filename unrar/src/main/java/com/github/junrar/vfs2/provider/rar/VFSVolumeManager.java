@@ -18,6 +18,7 @@ package com.github.junrar.vfs2.provider.rar;
 
 import java.io.IOException;
 
+import com.github.junrar.IArchive;
 import org.apache.commons.vfs2.FileObject;
 
 import com.github.junrar.Archive;
@@ -40,7 +41,7 @@ public class VFSVolumeManager implements VolumeManager {
 	}
 
 	@Override
-	public Volume nextArchive(Archive archive, Volume last) throws IOException {
+	public Volume nextArchive(IArchive archive, Volume last) throws IOException {
 		if (last == null)
 			return new VFSVolume(archive, firstVolume);
 

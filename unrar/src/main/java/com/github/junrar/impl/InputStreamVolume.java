@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.github.junrar.Archive;
+import com.github.junrar.IArchive;
 import com.github.junrar.Volume;
 import com.github.junrar.io.IReadOnlyAccess;
 import com.github.junrar.io.ReadOnlyAccessByteArray;
@@ -16,14 +17,14 @@ import com.github.junrar.io.ReadOnlyAccessByteArray;
  * 
  */
 public class InputStreamVolume implements Volume {
-	private final Archive archive;
+	private final IArchive archive;
 	private final byte[] file;
 
 	/**
-	 * @param file
+	 * @param archive
 	 * @throws IOException 
 	 */
-	public InputStreamVolume(Archive archive, InputStream inputstream) throws IOException {
+	public InputStreamVolume(IArchive archive, InputStream inputstream) throws IOException {
 		this.archive = archive;
 		byte[] buff = new byte[8192];
 		int bytesRead = 0;
@@ -46,7 +47,7 @@ public class InputStreamVolume implements Volume {
 	}
 
 	@Override
-	public Archive getArchive() {
+	public IArchive getArchive() {
 		return archive;
 	}
 

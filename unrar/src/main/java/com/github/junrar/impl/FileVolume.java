@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.github.junrar.Archive;
+import com.github.junrar.IArchive;
 import com.github.junrar.Volume;
 import com.github.junrar.io.IReadOnlyAccess;
 import com.github.junrar.io.ReadOnlyAccessFile;
@@ -30,13 +31,13 @@ import com.github.junrar.io.ReadOnlyAccessFile;
  * 
  */
 public class FileVolume implements Volume {
-	private final Archive archive;
+	private final IArchive archive;
 	private final File file;
 
 	/**
 	 * @param file
 	 */
-	public FileVolume(Archive archive, File file) {
+	public FileVolume(IArchive archive, File file) {
 		this.archive = archive;
 		this.file = file;
 	}
@@ -52,7 +53,7 @@ public class FileVolume implements Volume {
 	}
 
 	@Override
-	public Archive getArchive() {
+	public IArchive getArchive() {
 		return archive;
 	}
 

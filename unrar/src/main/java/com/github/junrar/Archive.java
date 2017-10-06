@@ -61,7 +61,7 @@ import java.io.FileOutputStream;
  * @author $LastChangedBy$
  * @version $LastChangedRevision$
  */
-public class Archive implements Closeable {
+public class Archive implements Closeable, IArchive{
 	private static Logger logger = Logger.getLogger(Archive.class.getName());
 
 	private IReadOnlyAccess rof;

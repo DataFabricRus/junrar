@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import com.github.junrar.Archive;
+import com.github.junrar.IArchive;
 import com.github.junrar.UnrarCallback;
 import com.github.junrar.Volume;
 import com.github.junrar.crc.RarCRC;
@@ -40,7 +41,7 @@ import com.github.junrar.rarfile.FileHeader;
  */
 public class ComprDataIO {
 
-	private final Archive archive;
+	private final IArchive archive;
 
 	private long unpPackedSize;
 
@@ -80,7 +81,7 @@ public class ComprDataIO {
 
 	private char currentCommand;
 
-	public ComprDataIO(Archive arc) {
+	public ComprDataIO(IArchive arc) {
 		this.archive = arc;
 	}
 
