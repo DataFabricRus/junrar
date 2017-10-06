@@ -11,7 +11,7 @@ public class SinglePassAccessStream extends InputStream {
 
     private InputStream src;
     private long pointer;
-    private int length;
+    private long length;
     private boolean foundEOS;
     private byte abyte0[];
 
@@ -21,11 +21,6 @@ public class SinglePassAccessStream extends InputStream {
         length = 0;
         foundEOS = false;
         src = inputstream;
-    }
-
-
-    public int getFilePointer() throws IOException {
-        return (int) pointer;
     }
 
     public long getLongFilePointer() throws IOException {
@@ -55,16 +50,12 @@ public class SinglePassAccessStream extends InputStream {
             return -1;
         else {
             int k = Math.min(len, BLOCK_SIZE - (int) (pointer & BLOCK_MASK));
-            System.arraycopy(abyte0, (int) (pointer & BLOCK_MASK), bytes, off,
-                    k);
+            System.arraycopy(abyte0, (int) (pointer & BLOCK_MASK), bytes, off, k);
             pointer += k;
             return k;
         }
     }
 
-    public final void readFully(byte[] bytes) throws IOException {
-        readFully(bytes, bytes.length);
-    }
 
     public final void readFully(byte[] bytes, int len) throws IOException {
         int read = 0;
@@ -80,8 +71,8 @@ public class SinglePassAccessStream extends InputStream {
     private long readUntil(long l, int needFor) throws IOException {
         if (foundEOS)
             return length;
-        int i = needFor;
-        long j = length >>> BLOCK_SHIFT;
+        long i = needFor;
+        long j = length >> BLOCK_SHIFT;
         for (long k = j; k <= i; k++) {
             abyte0 = new byte[BLOCK_SIZE];
             int i1 = BLOCK_SIZE;
@@ -96,7 +87,6 @@ public class SinglePassAccessStream extends InputStream {
                 i1 -= k1;
                 length += k1;
             }
-
         }
 
         return length;
@@ -107,46 +97,6 @@ public class SinglePassAccessStream extends InputStream {
             pointer = 0L;
         else
             pointer = loc;
-    }
-
-    public void seek(int loc) throws IOException {
-        long lloc = ((long) loc) & 0xffffffffL;
-        if (lloc < 0L)
-            pointer = 0L;
-        else
-            pointer = lloc;
-    }
-
-    public final int readInt() throws IOException {
-        int i = read();
-        int j = read();
-        int k = read();
-        int l = read();
-        if ((i | j | k | l) < 0)
-            throw new EOFException();
-        else
-            return (i << 24) + (j << 16) + (k << 8) + l;
-    }
-
-    public final long readLong() throws IOException {
-        return ((long) readInt() << 32) + ((long) readInt() & 0xffffffffL);
-    }
-
-    public final double readDouble() throws IOException {
-        return Double.longBitsToDouble(readLong());
-    }
-
-    public final short readShort() throws IOException {
-        int i = read();
-        int j = read();
-        if ((i | j) < 0)
-            throw new EOFException();
-        else
-            return (short) ((i << 8) + j);
-    }
-
-    public final float readFloat() throws IOException {
-        return Float.intBitsToFloat(readInt());
     }
 
     public void close() throws IOException {
