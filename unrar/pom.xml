@@ -3,7 +3,7 @@
 	<groupId>com.github.junrar</groupId>
 	<artifactId>junrar</artifactId>
 	<packaging>jar</packaging>
-	<version>0.8.0</version>
+	<version>0.9.0-SNAPSHOT</version>
 	<name>Java UnRar</name>
 	<description>rar decompression library in plain java. Also for standalone extraction: java - jar junrar.jar &lt;thearchive&gt; &lt;the destination directory&gt;</description>
 	<url>https://github.com/edmund-wagner/junrar</url>
