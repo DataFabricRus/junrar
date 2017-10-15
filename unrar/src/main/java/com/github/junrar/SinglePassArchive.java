@@ -9,7 +9,7 @@ import com.github.junrar.unpack.Unpack;
 import java.io.*;
 import java.util.logging.Logger;
 
-public class SinglePassArchive implements IArchive {
+public class SinglePassArchive implements IArchive, Closeable {
     private static Logger logger = Logger.getLogger(SinglePassArchive.class.getName());
 
 
@@ -32,7 +32,7 @@ public class SinglePassArchive implements IArchive {
     private long position;
 
 
-    public SinglePassArchive(VolumeManager volumeManager, boolean some) throws RarException, IOException {
+    public SinglePassArchive(VolumeManager volumeManager) throws RarException, IOException {
         this.volumeManager = volumeManager;
         this.unrarCallback = null;
         dataIO = new ComprDataIO(this);
@@ -353,5 +353,15 @@ public class SinglePassArchive implements IArchive {
     @Override
     public MainHeader getMainHeader() {
         throw new UnsupportedOperationException();
+    }
+
+    public void close() throws IOException {
+        if (rof != null) {
+            rof.close();
+            rof = null;
+        }
+        if (unpack != null) {
+            unpack.cleanUp();
+        }
     }
 }

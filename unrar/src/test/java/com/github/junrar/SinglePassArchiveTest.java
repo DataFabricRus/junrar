@@ -25,7 +25,7 @@ public class SinglePassArchiveTest {
         SinglePassArchive a = null;
         try {
             InputStream targetStream = new FileInputStream(f);
-            a = new SinglePassArchive(new UnboundedInputStreamVolumeManager(targetStream), false);
+            a = new SinglePassArchive(new UnboundedInputStreamVolumeManager(targetStream));
         } catch (RarException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
